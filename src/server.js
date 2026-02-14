@@ -12,12 +12,12 @@ const PORT = process.env.PORT || 5000
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:3000",
+  origin: process.env.CLIENT_URL || "https://photography-theta-self.vercel.app",
   credentials: true
 }))
 
 mongoose
-  .connect("mongodb://127.0.0.1:27017/photography_db", {
+  .connect(process.env.MONGODB_URI, {
     family: 4,
     serverSelectionTimeoutMS: 15000,
   })
