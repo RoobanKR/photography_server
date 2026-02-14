@@ -69,7 +69,7 @@ const deleteFromCloudinary = async (publicId, resourceType = 'image') => {
 // Generate QR Code for event
 const generateQRCode = async (eventId) => {
   try {
-    const eventData = `${process.env.CLIENT_URL || "http://localhost:3000"}/event/${eventId}`;
+    const eventData = `${process.env.PUBLIC_URL || "https://photography-theta-self.vercel.app"}/event/${eventId}`;
     const qrCode = await QRCode.toDataURL(eventData);
     return qrCode;
   } catch (error) {

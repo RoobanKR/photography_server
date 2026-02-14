@@ -42,7 +42,7 @@ app = FastAPI(
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5000", "*"],
+    allow_origins=["https://photography-theta-self.vercel.app", "http://localhost:5000", "*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
