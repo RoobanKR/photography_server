@@ -1,8 +1,6 @@
+import "./config/env.js";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const seedUsers = async () => {
   try {
@@ -16,6 +14,13 @@ const seedUsers = async () => {
         name: "Surya Admin",
         role: "admin",
         clientId: "11111111111111"
+      },
+      {
+        email: "roobanadmin@gmail.com",
+        password: "123",
+        name: "Rooban Admin",
+        role: "admin",
+        clientId: "66666666666666"
       },
       {
         email: "admin@example.com",
