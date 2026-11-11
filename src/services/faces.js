@@ -12,7 +12,7 @@ const JOIN = 0.6;
 // Someone becomes a "person" once they appear in this many photos
 export const MIN_PHOTOS_PER_PERSON = 3;
 // Default selfie match distance for guests
-export const MATCH_THRESHOLD = 0.55;
+export const MATCH_THRESHOLD = 0.5;
 
 const distance = (a, b) => {
   let sum = 0;
@@ -190,20 +190,14 @@ export const regroupEventFaces = async (eventId) => {
 export const matchSelfie = async (eventId, descriptor, threshold = MATCH_THRESHOLD) => {
   const faces = await Face.find({ eventId }, "publicId descriptor personId").lean();
 
+  // Only photos whose own faces match the selfie. We deliberately do NOT pull in
+  // the rest of a matched person group: when grouping merges two similar-looking
+  // people, that returned the whole group and made the threshold slider do nothing.
   const best = new Map();
-  const matchedPeople = new Set();
   for (const face of faces) {
     const d = distance(descriptor, face.descriptor);
     if (d >= threshold) continue;
     if (!best.has(face.publicId) || d < best.get(face.publicId)) best.set(face.publicId, d);
-    // A confident match pulls in the rest of that person's photos too
-    if (face.personId && d < threshold - 0.05) matchedPeople.add(face.personId);
-  }
-
-  for (const face of faces) {
-    if (face.personId && matchedPeople.has(face.personId) && !best.has(face.publicId)) {
-      best.set(face.publicId, threshold);
-    }
   }
 
   return [...best.entries()]

@@ -114,6 +114,12 @@ const eventSchema = new mongoose.Schema({
     type: String,
     default: ""
   },
+  // The guest link the stored qrCode encodes. Lets the QR be refreshed
+  // automatically when PUBLIC_URL changes (localhost -> the live domain).
+  qrUrl: {
+    type: String,
+    default: ""
+  },
   // publicId of the media file shown as the event cover
   coverPublicId: {
     type: String,

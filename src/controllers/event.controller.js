@@ -106,15 +106,20 @@ const findOwnedEvent = async (req, res, id) => {
   return event;
 };
 
-// Generate QR Code for event
-export const generateQRCode = async (eventId) => {
-  try {
-    const qrCode = await QRCode.toDataURL(guestUrlFor(eventId), { width: 512, margin: 2 });
-    return qrCode;
-  } catch (error) {
-    console.error("QR Code generation error:", error);
-    throw new Error("Failed to generate QR code");
-  }
+// Sets event.qrCode and records the link it encodes, so a later PUBLIC_URL
+// change can be detected. Does not save; the caller does.
+export const setEventQr = async (event) => {
+  const url = guestUrlFor(event._id);
+  event.qrCode = await QRCode.toDataURL(url, { width: 512, margin: 2 });
+  event.qrUrl = url;
+};
+
+// Regenerates the QR when the link it was made from is no longer the current one.
+export const refreshEventQr = async (event) => {
+  if (event.qrCode && event.qrUrl === guestUrlFor(event._id)) return false;
+  await setEventQr(event);
+  await event.save();
+  return true;
 };
 
 // Dates arrive as "YYYY-MM-DD" (stored as UTC midnight). Allow one day of slack
@@ -182,7 +187,7 @@ export const createEvent = async (req, res) => {
       mediaFiles: []
     });
 
-    event.qrCode = await generateQRCode(event._id);
+    await setEventQr(event);
     await event.save();
 
     res.status(201).json({
@@ -531,6 +536,9 @@ export const getEventById = async (req, res) => {
       });
     }
 
+    // A QR made before PUBLIC_URL changed would still point at the old host
+    await refreshEventQr(event);
+
     res.status(200).json({
       success: true,
       event,
@@ -590,7 +598,7 @@ export const regenerateEventQR = async (req, res) => {
     const event = await findOwnedEvent(req, res, req.params.id);
     if (!event) return;
 
-    event.qrCode = await generateQRCode(event._id);
+    await setEventQr(event);
     await event.save();
 
     res.status(200).json({ success: true, qrCode: event.qrCode, guestUrl: guestUrlFor(event._id) });

@@ -3,7 +3,7 @@ import Booking, { BOOKING_SOURCES, BOOKING_STATUSES, PAYMENT_METHODS } from "../
 import Event, { EVENT_TYPES } from "../models/Event.js";
 import User from "../models/User.js";
 import Role from "../models/Role.js";
-import { generateQRCode } from "./event.controller.js";
+import { setEventQr } from "./event.controller.js";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
@@ -300,7 +300,7 @@ export const convertBookingToEvent = async (req, res) => {
       status: "active",
       mediaFiles: []
     });
-    event.qrCode = await generateQRCode(event._id);
+    await setEventQr(event);
     await event.save();
 
     booking.eventId = event._id;
